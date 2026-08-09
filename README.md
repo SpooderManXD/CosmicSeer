@@ -11,7 +11,7 @@ pip install -r requirements.txt
 Set your NVIDIA NIM API key:
 
 ```bash
-export NVIDIA_API_KEY=nvapi-your-key-here
+$env:NVIDIA_API_KEY="nvapi-your-key-here"
 ```
 
 ## Run

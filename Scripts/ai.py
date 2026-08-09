@@ -29,7 +29,7 @@ def generate_advisor_response(solar, fusion, ai_boost, dyson, harvesters, stars,
         return get_mock_response(tier_label)
 
     prompt = f"""
-You are CosmoSeer, an advanced AI cosmic advisor monitoring a civilization's energy infrastructure.
+You are CosmoSeer, an advanced AI cosmic advisor monitoring a civilization's energy infrastructure and development.
 
 Current Metrics:
 - Kardashev Index: {k_score:.4f} ({tier_label})
@@ -41,8 +41,13 @@ Current Metrics:
 Provide a concise 2-sentence tactical report.
 1. Highlight the primary power milestone achieved at this Kardashev tier.
 2. Identify one realistic scientific bottleneck or existential hazard appropriate for a {tier_label} civilization.
+3. Suggest one actionable recommendation to mitigate the identified risk.
+4. Remember most people do not understand advanced astrophysics, so keep the explanation clear and accessible.
+5. If the values are below Type I, provide a brief warning about the risks of remaining at a Type 0 civilization.
+6. If the values are at Type III, provide a brief warning about the risks of overextending beyond Type III.
+7. If the values remian unchanged or the difference is negligible, provide a brief warning about the risks of stagnation and lack of progress.
 
-Be specific, technical, and direct. No filler phrases.
+Be specific, simple, and direct. No filler phrases.
 """
 
     try:

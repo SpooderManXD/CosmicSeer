@@ -1,14 +1,11 @@
-import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "Scripts"))
-
 import streamlit as st
-from logic import calculate_kardashev, get_tier_label
-from ui import (
+from scripts.logic import calculate_kardashev, get_tier_label
+from scripts.ui import (
     inject_css, render_header, render_k_gauge,
     render_power_breakdown, render_advisor_panel, render_input_label
 )
-from ai import generate_advisor_response
+from scripts.ai import generate_advisor_response
 
 st.set_page_config(
     page_title="CosmoSeer",
