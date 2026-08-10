@@ -38,15 +38,31 @@ ORB_HTML = """
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-  canvas { border-radius: 50%; filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.4)); }
+  canvas { border-radius: 50%; filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.4)); cursor: pointer; }
 </style>
 </head>
 <body>
-<canvas id="orb" width="400" height="400"></canvas>
+<canvas id="orb" width="800" height="600"></canvas>
 <script>
 var canvas = document.getElementById('orb');
 var ctx = canvas.getContext('2d');
-var W = 400, H = 400, cx = W/2, cy = H/2, t = 0;
+var W = 800, H = 600, baseCx = W/2, baseCy = H/2, t = 0;
+
+var orbX = baseCx;
+var orbY = baseCy;
+
+var mouse = { x: -1000, y: -1000, active: false };
+
+canvas.addEventListener('mousemove', function(e) {
+  var rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+  mouse.active = true;
+});
+
+canvas.addEventListener('mouseleave', function() {
+  mouse.active = false;
+});
 
 var numPoints = 16;
 var points = [];
@@ -62,25 +78,57 @@ for (var i = 0; i < numPoints; i++) {
 function draw() {
   t += 0.025;
   ctx.clearRect(0, 0, W, H);
-  
+
+  var targetX = baseCx;
+  var targetY = baseCy;
+
+  if (mouse.active) {
+    var dxCenter = mouse.x - baseCx;
+    var dyCenter = mouse.y - baseCy;
+    var distCenter = Math.sqrt(dxCenter * dxCenter + dyCenter * dyCenter);
+    
+    if (distCenter < 600) {
+      var pullFactor = 0.55;
+      targetX = baseCx + dxCenter * pullFactor;
+      targetY = baseCy + dyCenter * pullFactor;
+    }
+  }
+
+  orbX += (targetX - orbX) * 0.08;
+  orbY += (targetY - orbY) * 0.08;
+
   var baseRadius = 130;
   var calculated = [];
-  
+
   for (var i = 0; i < numPoints; i++) {
     var p = points[i];
     var r = baseRadius + Math.sin(t * p.speed + p.phase) * p.amp + Math.cos(t * 0.8 + p.phase * 2) * 2;
-    calculated.push({
-      x: cx + Math.cos(p.baseAngle) * r,
-      y: cy + Math.sin(p.baseAngle) * r
-    });
+
+    var px = orbX + Math.cos(p.baseAngle) * r;
+    var py = orbY + Math.sin(p.baseAngle) * r;
+
+    if (mouse.active) {
+      var dx = px - mouse.x;
+      var dy = py - mouse.y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var maxDist = 250;
+
+      if (dist < maxDist) {
+        var force = (1 - dist / maxDist) * 16;
+        px += (dx / dist) * force;
+        py += (dy / dist) * force;
+      }
+    }
+
+    calculated.push({ x: px, y: py });
   }
 
-  var outerGlow = ctx.createRadialGradient(cx, cy, baseRadius * 0.8, cx, cy, baseRadius + 25);
+  var outerGlow = ctx.createRadialGradient(orbX, orbY, baseRadius * 0.8, orbX, orbY, baseRadius + 30);
   outerGlow.addColorStop(0, 'rgba(0, 212, 255, 0.25)');
   outerGlow.addColorStop(1, 'rgba(0, 212, 255, 0)');
   ctx.fillStyle = outerGlow;
   ctx.beginPath();
-  ctx.arc(cx, cy, baseRadius + 25, 0, Math.PI * 2);
+  ctx.arc(orbX, orbY, baseRadius + 30, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.beginPath();
@@ -97,16 +145,26 @@ function draw() {
   }
   ctx.closePath();
 
-  var fluidGrad = ctx.createRadialGradient(cx - 30, cy - 30, 10, cx, cy, baseRadius);
+  var fluidGrad = ctx.createRadialGradient(orbX - 30, orbY - 30, 10, orbX, orbY, baseRadius);
   fluidGrad.addColorStop(0, '#5ce1ff');
   fluidGrad.addColorStop(0.7, '#00d4ff');
   fluidGrad.addColorStop(1, '#0088cc');
   ctx.fillStyle = fluidGrad;
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+  var highlightOffsetX = Math.sin(t * 1.5) * 8;
+  var highlightOffsetY = Math.cos(t * 1.2) * 8;
+
+  if (mouse.active) {
+    var dxH = mouse.x - orbX;
+    var dyH = mouse.y - orbY;
+    highlightOffsetX += dxH * 0.18;
+    highlightOffsetY += dyH * 0.18;
+  }
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.beginPath();
-  ctx.arc(cx - 35, cy - 35, 45, 0, Math.PI * 2);
+  ctx.arc(orbX - 35 + highlightOffsetX, orbY - 35 + highlightOffsetY, 42, 0, Math.PI * 2);
   ctx.fill();
 
   requestAnimationFrame(draw);
@@ -146,20 +204,13 @@ if st.session_state["page"] == "orb_view":
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="text-align:center;padding:36px 0 12px;">
-        <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.3em;color:#00d4ff;text-transform:uppercase;margin-bottom:8px;">CosmoSeer Processing</div>
-        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:#e2e8f0;margin:0;">Core Synchronization</h2>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col = st.columns([1, 1, 1])[1]
+    col = st.columns([1, 6, 1])[1]
     with col:
-        components.html(ORB_HTML, height=410)
+        components.html(ORB_HTML, height=610)
 
-    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
 
-    col_btn = st.columns([1, 1, 1])[1]
+    col_btn = st.columns([1, 2, 1])[1]
     with col_btn:
         if st.button("View Analysis Report", use_container_width=True):
             st.session_state["page"] = "advisor_response"
@@ -310,7 +361,6 @@ else:
 
         render_power_breakdown(type_1, type_2, type_3, total_watts)
 
-        # Added spacing between breakdown cards and metrics
         st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
         col_a, col_b = st.columns(2)
