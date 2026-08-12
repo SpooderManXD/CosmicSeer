@@ -43,12 +43,20 @@ Provide a concise, 2-to-3 sentence report using plain, non-technical language:
 1. Milestone: State the main energy achievement of this stage in simple terms.
 2. Challenge: Mention one practical obstacle or safety risk this civilization faces.
 3. Next Step: Give a simple action to help the civilization grow. If energy levels have stagnated, emphasize why expanding to new frontiers is crucial.
-
+4. Make the report and improvent in the same short paragraph.
+5. For type 0 and type I, you can skip the celestial computing and interstellar communication parts. Instead include about photon/optical computing and quantam computing. How it helps and how it can be improved further.
+6. Also for type II, I want you to include celestial computing too. Of how it helps and how it can be improved further.
+7.For type III, I want you to include a report on how interstellar communication is helping the civilization manage its energy systems, and how it can be improved further.
 RULES:
 - Plain Language Only: Avoid complex jargon. Explain concepts using real-world comparisons where helpful.
 - Stay Focused: Keep the response short, direct, and free of filler phrases or pleasantries.
-- Tone: Encouraging, clear, and informative.
-- Don't bother bolding or using itallic font since it wont show up in the final output. Just write the text as is.  
+- Tone: Encouraging and clear.
+- Don't bother bolding or using itallic font since it wont show up in the final output. Just write the text as is.
+- Must give unique responses for each tier, and not repeat the same text for different tiers. Same goes for new requests. Each response must be unique and not repeat previous responses.
+- Do not make up any new metrics or data points. Only use the information given in the prompt.
+- Also include a report on how AI efficiency is helping the civilization manage its energy systems, and how it can be improved further.
+- Do not consider values from other types in the report. Only focus on the civilization in question and its metrics.
+
 """
 
     try:
