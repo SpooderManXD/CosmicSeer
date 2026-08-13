@@ -53,14 +53,15 @@ var orbY = baseCy;
 
 var mouse = { x: -1000, y: -1000, active: false };
 
-canvas.addEventListener('mousemove', function(e) {
+// Track mouse globally across the entire window
+window.addEventListener('mousemove', function(e) {
   var rect = canvas.getBoundingClientRect();
   mouse.x = e.clientX - rect.left;
   mouse.y = e.clientY - rect.top;
   mouse.active = true;
 });
 
-canvas.addEventListener('mouseleave', function() {
+window.addEventListener('mouseleave', function() {
   mouse.active = false;
 });
 
@@ -87,10 +88,20 @@ function draw() {
     var dyCenter = mouse.y - baseCy;
     var distCenter = Math.sqrt(dxCenter * dxCenter + dyCenter * dyCenter);
     
-    if (distCenter < 600) {
-      var pullFactor = 0.55;
+    if (distCenter > 0) {
+      // Gentle attraction towards cursor anywhere on screen
+      var pullFactor = 0.25;
       targetX = baseCx + dxCenter * pullFactor;
       targetY = baseCy + dyCenter * pullFactor;
+
+      // Clamp max movement so the orb never strays too far from center
+      var maxTravel = 120;
+      var currentOffset = Math.sqrt(Math.pow(targetX - baseCx, 2) + Math.pow(targetY - baseCy, 2));
+      if (currentOffset > maxTravel) {
+        var angle = Math.atan2(targetY - baseCy, targetX - baseCx);
+        targetX = baseCx + Math.cos(angle) * maxTravel;
+        targetY = baseCy + Math.sin(angle) * maxTravel;
+      }
     }
   }
 
@@ -158,8 +169,8 @@ function draw() {
   if (mouse.active) {
     var dxH = mouse.x - orbX;
     var dyH = mouse.y - orbY;
-    highlightOffsetX += dxH * 0.18;
-    highlightOffsetY += dyH * 0.18;
+    highlightOffsetX += dxH * 0.12;
+    highlightOffsetY += dyH * 0.12;
   }
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
